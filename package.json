@@ -23,6 +23,7 @@
     "node": ">=8.5.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
     "@types/node": "^12.6.8",
     "nodemon": "^1.19.1",
     "ts-node": "^8.3.0",
@@ -32,6 +33,7 @@
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "figlet": "^1.2.3",
+    "fs-extra": "^8.1.0",
     "path": "^0.12.7",
     "tiny-glob": "^0.2.6"
   }
