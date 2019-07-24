@@ -1,0 +1,38 @@
+{
+  "name": "jetzt",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/index.js",
+  "bin": {
+    "jetzt": "./lib/index.js"
+  },
+  "scripts": {
+    "start": "nodemon",
+    "create": "npm run build && npm run test",
+    "build": "tsc -p .",
+    "test": "sudo npm i -g && pizza",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+  },
+  "keywords": [],
+  "author": "Christopher Schleiden <cschleiden@live.de>",
+  "license": "MIT",
+  "peerDependencies": {
+    "next": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=8.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.6.8",
+    "nodemon": "^1.19.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commander": "^2.20.0",
+    "figlet": "^1.2.3",
+    "path": "^0.12.7",
+    "tiny-glob": "^0.2.6"
+  }
+}
