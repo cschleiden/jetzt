@@ -29,7 +29,6 @@ export class NextBuild {
     const files = await glob("serverless/pages/**/*.{js,html}", {
       cwd: this.path
     });
-    console.log(files);
     for (const file of files) {
       this.pages.push(new NextPage(file));
     }
