@@ -1,11 +1,11 @@
 // Require next from the folder we're running in
 // @ts-ignore
 const nextBuild = require.main.require("next/dist/build").default;
-import fse from "fs-extra";
+import fse, { fchownSync } from "fs-extra";
 import { join, resolve, basename, dirname } from "path";
 import { NextBuild } from "./next";
 import { parseNextJsConfig } from "./parseNextConfig";
-import { handler, functionJson } from "./templates";
+import { handler, functionJson, proxiesJson, hostJson } from "./templates";
 import { log, CurrentLogLevel, LogLevel } from "./log";
 
 export async function build(path: string) {
@@ -63,7 +63,18 @@ export async function build(path: string) {
   }
 
   // Generate proxies
-  // TODO
+  await fse.writeFile(
+    join(resolvedPath, "build", "proxies.json"),
+    proxiesJson(),
+    {
+      encoding: "utf-8"
+    }
+  );
+
+  // Generate host config
+  await fse.writeFile(join(resolvedPath, "build", "host.json"), hostJson(), {
+    encoding: "utf-8"
+  });
 
   // Upload static pages to blob storage?
   // TODO

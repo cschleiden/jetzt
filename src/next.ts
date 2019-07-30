@@ -58,8 +58,15 @@ export class NextPage {
   }
 
   get targetFolder(): string {
-    const targetFolder = `func_${this.pageName}`;
-    return join(this.buildOutputPath, dirname(this.path), targetFolder);
+    // Azure functions don't support sub-folders, so encode folder structure in file name.
+    // Skip the first entry (/pages)
+    const folder = dirname(this.path)
+      .split(sep)
+      .slice(1)
+      .join("_");
+
+    const targetFolder = `func_${folder}_${this.pageName}`;
+    return join(this.buildOutputPath, targetFolder);
   }
 
   get targetPageName(): string {

@@ -24,3 +24,28 @@ export function functionJson(pageName: string) {
     ]
   });
 }
+
+export function hostJson(): string {
+  return JSON.stringify({
+    version: "2.0",
+    extensions: {
+      http: {
+        routePrefix: ""
+      }
+    }
+  });
+}
+
+export function proxiesJson(): string {
+  return JSON.stringify({
+    proxies: {
+      proxy_contact_form: {
+        matchCondition: {
+          methods: ["GET"],
+          route: "/contact/form"
+        },
+        backendUri: "https://localhost/func_contact_form"
+      }
+    }
+  });
+}
