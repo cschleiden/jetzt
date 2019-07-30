@@ -1,7 +1,7 @@
 {
   "name": "jetzt",
   "version": "0.0.1",
-  "description": "",
+  "description": "Package and publish Next.js 9 serverless applications to Azure Functions",
   "main": "src/index.js",
   "bin": {
     "jetzt": "./lib/index.js"
