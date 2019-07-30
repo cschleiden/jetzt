@@ -10,5 +10,8 @@ export function parseNextJsConfig(nextConfigDir: string) {
     nextConfigDir
   );
 
+  // Force serverless build configuration target
+  nextConfiguration.target = "serverless";
+
   return nextConfiguration;
 }
