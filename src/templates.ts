@@ -10,7 +10,7 @@ export function functionJson(pageName: string) {
   return JSON.stringify({
     bindings: [
       {
-        authLevel: "function",
+        authLevel: "anonymous",
         type: "httpTrigger",
         direction: "in",
         name: "req",

@@ -62,18 +62,9 @@ export async function build(path: string) {
     );
   }
 
-  // Copy to temporary folder
-  // TODO: Make path configurable
-  // await fse.copy(
-  //   join(resolvedPath, ".next/serverless/pages"),
-  //   join(path, "build"),
-  //   {
-  //     recursive: true
-  //   }
-  // );
-
   // Generate proxies
   // TODO
 
   // Upload static pages to blob storage?
+  // TODO
 }
