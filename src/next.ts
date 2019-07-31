@@ -40,6 +40,14 @@ export class NextPage {
     return this.pageFileName.startsWith("_");
   }
 
+  get route(): string {
+    // TODO: Handle dynamic routes
+    return this.path
+      .split(sep)
+      .map(x => basename(x, ".js"))
+      .join("/");
+  }
+
   /**
    * Name of the page
    *
@@ -57,7 +65,7 @@ export class NextPage {
     return join(this.sourcePath, this.path);
   }
 
-  get targetFolder(): string {
+  get identifier(): string {
     // Azure functions don't support sub-folders, so encode folder structure in file name.
     // Skip the first entry (/pages)
     const folder = dirname(this.path)
@@ -65,8 +73,14 @@ export class NextPage {
       .slice(1)
       .join("_");
 
-    const targetFolder = `func_${folder}_${this.pageName}`;
-    return join(this.buildOutputPath, targetFolder);
+    return `func_${folder}_${this.pageName}`;
+  }
+
+  /**
+   * Absolute path to the target folder
+   */
+  get targetFolder(): string {
+    return join(this.buildOutputPath, this.identifier);
   }
 
   get targetPageName(): string {

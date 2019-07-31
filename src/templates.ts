@@ -1,3 +1,5 @@
+import { NextPage } from "./next";
+
 export function handler(pageName: string) {
   return `const page = require("./${pageName}");
 
@@ -6,7 +8,7 @@ module.exports = async function (context) {
 };`;
 }
 
-export function functionJson(pageName: string) {
+export function functionJson() {
   return JSON.stringify({
     bindings: [
       {
@@ -36,16 +38,34 @@ export function hostJson(): string {
   });
 }
 
-export function proxiesJson(): string {
+export function proxiesJson(assetPath: string, pages: NextPage[]): string {
+  const pageProxies: any = {};
+
+  // Generate proxies for normal pages
+  for (const p of pages.filter(
+    p => !p.isStatic && !p.isDynamicallyRouted && !p.isSpecial
+  )) {
+    pageProxies[`proxy_${p.identifier}`] = {
+      matchCondition: {
+        methods: ["GET"],
+        route: p.route
+      },
+      backendUri: `https://localhost/${p.identifier}`
+    };
+  }
+
+  // Generate proxies for
+
   return JSON.stringify({
     proxies: {
-      proxy_contact_form: {
+      static_assets: {
         matchCondition: {
           methods: ["GET"],
-          route: "/contact/form"
+          route: "/_next"
         },
-        backendUri: "https://localhost/func_contact_form"
-      }
+        backendUri: assetPath
+      },
+      ...pageProxies
     }
   });
 }

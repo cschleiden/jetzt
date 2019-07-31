@@ -1,11 +1,48 @@
 /**
  * Represents a single Next.js page
+ *
  */
 export declare class NextPage {
-    path: string;
+    private readonly path;
+    private readonly sourcePath;
+    private readonly buildOutputPath;
+    /**
+     *
+     * @param path Relative (to .next/serverless/pages) path to page, e.g., `contact/about.tsx`
+     * @param sourcePath Absolute path to `.next/serverless/pages` directory
+     * @param buildOutputPath Absolute path to place modified pages in
+     */
+    constructor(path: string, sourcePath: string, buildOutputPath: string);
+    /**
+     * Indicates whether the page was statically pre-rendered
+     */
     readonly isStatic: boolean;
-    constructor(path: string);
-    private static isStatic;
+    /**
+     * Indicates whether the page uses dynamic routing
+     */
+    readonly isDynamicallyRouted: boolean;
+    /**
+     * Indicates whether the page is a special page, e.g., the error page
+     */
+    readonly isSpecial: boolean;
+    readonly route: string;
+    /**
+     * Name of the page
+     *
+     * For example, for "pages/foo/contact.{ts,js}"" this will be "contact"
+     */
+    readonly pageName: string;
+    readonly pageFileName: string;
+    readonly pageSourcePath: string;
+    readonly identifier: string;
+    /**
+     * Absolute path to the target folder
+     */
+    readonly targetFolder: string;
+    readonly targetPageName: string;
+    readonly targetPageFileName: string;
+    readonly targetPath: string;
+    toString(): string;
 }
 /**
  * Represents the build output for a Next.js project
@@ -14,6 +51,6 @@ export declare class NextBuild {
     private path;
     private _pages;
     constructor(path: string);
-    init(): Promise<void>;
+    init(buildOutputPath: string): Promise<void>;
     readonly pages: NextPage[];
 }

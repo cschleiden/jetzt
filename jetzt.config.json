@@ -1,0 +1,10 @@
+{
+    "storage": {
+        "account": "nextjsfunctionstorage",
+        "container": "nextjs-function-assets",
+        "url": "https://nextjsfunctionsstorage.blob.core.windows.net/nextjs-functions-assets/"
+    },
+    "functionApp": {
+        
+    }
+}

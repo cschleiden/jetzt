@@ -3,7 +3,8 @@ import chalk from "chalk";
 export enum LogLevel {
   Default = 0,
   Verbose = 1,
-  Debug = 2
+  Debug = 2,
+  Error
 }
 
 export let CurrentLogLevel = LogLevel.Debug; // TODO: Set to verbose
