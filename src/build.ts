@@ -2,7 +2,8 @@
 // @ts-ignore
 const nextBuild = require.main.require("next/dist/build").default;
 
-import fse from "fs-extra";
+const archiver = require("archiver");
+import fse, { createWriteStream } from "fs-extra";
 import { join, resolve } from "path";
 import { checkConfig, JetztConfig } from "./config";
 import { log, LogLevel } from "./log";
@@ -42,6 +43,10 @@ export async function build(path: string) {
 
   await runStep(`Copying static assets`, () =>
     copyStaticAssets(sourcePath, buildAssetsOutputPath, buildResult)
+  );
+
+  await runStep(`Building Azure functions package`, () =>
+    createPackage(buildPagesOutputPath, buildOutputPath)
   );
 
   //
@@ -173,4 +178,34 @@ async function copyStaticAssets(
       join(sourcePath, "build", "pages", `${staticPage.identifier}.html`)
     );
   }
+}
+
+async function createPackage(sourcePath: string, outputPath: string) {
+  const packageFilename = "package.zip";
+
+  await new Promise((resolve, reject) => {
+    const output = createWriteStream(join(outputPath, packageFilename));
+    output.on("finish", resolve);
+    output.on("error", reject);
+
+    const archive = archiver("zip", {
+      zlib: { level: 0 }
+    });
+
+    archive
+      .glob(`**/*`, {
+        ignore: packageFilename,
+        cwd: sourcePath
+      })
+      .on("error", reject)
+      .pipe(output);
+    archive.finalize();
+  });
+
+  await fse.writeFile(join(outputPath, "packagename.txt"), packageFilename, {
+    encoding: "utf-8"
+  });
+
+  // Clean up directories
+  await fse.remove(sourcePath);
 }
