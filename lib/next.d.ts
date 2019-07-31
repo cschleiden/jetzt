@@ -48,9 +48,9 @@ export declare class NextPage {
  * Represents the build output for a Next.js project
  */
 export declare class NextBuild {
-    private path;
+    private sourcePath;
     private _pages;
-    constructor(path: string);
+    constructor(sourcePath: string);
     init(buildOutputPath: string): Promise<void>;
     readonly pages: NextPage[];
 }

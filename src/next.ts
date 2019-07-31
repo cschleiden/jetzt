@@ -106,11 +106,11 @@ export class NextPage {
 export class NextBuild {
   private _pages: NextPage[] = [];
 
-  constructor(private path: string) {}
+  constructor(private sourcePath: string) {}
 
   public async init(buildOutputPath: string): Promise<void> {
     // Parse pages
-    const sourcePath = join(this.path, ".next", "serverless");
+    const sourcePath = join(this.sourcePath, ".next", "serverless");
 
     const files = await glob("pages/**/*.{js,html}", {
       cwd: sourcePath
@@ -118,7 +118,7 @@ export class NextBuild {
     for (const file of files) {
       log(`Discovered file ${file}`, LogLevel.Debug);
       this.pages.push(
-        new NextPage(file, sourcePath, join(this.path, buildOutputPath))
+        new NextPage(file, sourcePath, buildOutputPath)
       );
     }
   }

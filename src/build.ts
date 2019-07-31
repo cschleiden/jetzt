@@ -2,7 +2,7 @@
 // @ts-ignore
 const nextBuild = require.main.require("next/dist/build").default;
 
-import fse, { fchownSync } from "fs-extra";
+import fse from "fs-extra";
 import { join, resolve } from "path";
 import { checkConfig, JetztConfig } from "./config";
 import { log, LogLevel } from "./log";
@@ -11,9 +11,66 @@ import { parseNextJsConfig } from "./parseNextConfig";
 import { functionJson, handler, hostJson, proxiesJson } from "./templates";
 
 export async function build(path: string) {
-  const nextConfig = parseNextJsConfig(path);
+  // Build paths
+  const sourcePath = resolve(path);
+  const buildOutputPath = join(sourcePath, "build");
+  const buildPagesOutputPath = join(buildOutputPath, "pages");
+  const buildAssetsOutputPath = join(buildOutputPath, "assets");
 
-  log(`Looking for jetzt configuration...`);
+  // Get configurations
+  const nextConfig = await runStep(`Parsing Next.js config...`, () =>
+    parseNextJsConfig(path)
+  );
+  const config = await runStep(`Looking for jetzt configuration...`, () =>
+    getJetztConfig()
+  );
+
+  // Build!
+  const buildResult = await runStep(`Building Next.js project...`, () =>
+    buildNextProject(sourcePath, buildPagesOutputPath, nextConfig)
+  );
+
+  // Process build result
+  await runStep(`Processing SSR pages...`, () => processSSRPages(buildResult));
+
+  await runStep(`Generating proxy configuration...`, () =>
+    generateProxies(buildResult, buildPagesOutputPath, config)
+  );
+  await runStep(`Generating host configuration...`, () =>
+    generateHostConfig(buildPagesOutputPath)
+  );
+
+  await runStep(`Copying static assets`, () =>
+    copyStaticAssets(sourcePath, buildAssetsOutputPath, buildResult)
+  );
+
+  //
+  // Azure CLI invocation
+  //
+
+  // For simplicity, we're just calling azure cli commands here. It might be better to call Azure
+  // REST API commands directly, but that's something to investigate in the future.
+
+  // Check for Azure CLI
+
+  // Upload static assets + pages to blob storage
+
+  // Upload function package
+  // TODO: Handle Linux/Windows?
+}
+
+async function runStep<T>(
+  description: string,
+  step: () => Promise<T>
+): Promise<T> {
+  log(description);
+  const result = await step();
+  log(`Done.`, LogLevel.Verbose);
+
+  return result;
+}
+
+async function getJetztConfig() {
   if (!(await fse.pathExists("./jetzt.config.json"))) {
     throw new Error("Could not find `jetzt.config.json`");
   }
@@ -22,29 +79,30 @@ export async function build(path: string) {
     await fse.readFile("./jetzt.config.json", "utf-8")
   );
   checkConfig(config);
-  log(`Found configuration.`);
 
-  log(`Building Next.js project...`);
+  return config;
+}
 
-  const resolvedPath = resolve(path);
+async function buildNextProject(
+  sourcePath: string,
+  buildPagesOutputPath: string,
+  nextConfig: unknown
+) {
   try {
-    const buildResult = await nextBuild(resolvedPath, nextConfig);
-    console.log(JSON.stringify(buildResult, undefined, 2));
+    const buildResult = await nextBuild(sourcePath, nextConfig);
   } catch (e) {
-    console.error(e);
+    throw e;
   }
 
-  // TODO: Standardize the build output logic here?
-  const buildOutput = new NextBuild(resolvedPath);
-  await buildOutput.init("build");
+  const buildOutput = new NextBuild(sourcePath);
+  await buildOutput.init(buildPagesOutputPath);
 
-  log(`Done.`);
+  return buildOutput;
+}
 
-  log(`Processing pages...`);
-
+async function processSSRPages(buildResult: NextBuild) {
   // Wrap non-static pages in custom handler
-  // TODO: Handle static/dynamic pages
-  for (const page of buildOutput.pages.filter(
+  for (const page of buildResult.pages.filter(
     p => !p.isStatic && !p.isDynamicallyRouted && !p.isSpecial
   )) {
     log(`Processing ${page.pageName}`);
@@ -76,56 +134,43 @@ export async function build(path: string) {
       }
     );
   }
+}
 
-  log(`Done.`);
-
-  log(`Generating proxies and host config...`);
-
+async function generateProxies(
+  buildOutput: NextBuild,
+  buildPagesOutputPath: string,
+  config: JetztConfig
+): Promise<void> {
   // Generate proxies
   await fse.writeFile(
-    join(resolvedPath, "build", "proxies.json"),
+    join(buildPagesOutputPath, "proxies.json"),
     proxiesJson(config.storage.url, buildOutput.pages),
     {
       encoding: "utf-8"
     }
   );
+}
 
+async function generateHostConfig(buildPath: string): Promise<void> {
   // Generate host config
-  await fse.writeFile(join(resolvedPath, "build", "host.json"), hostJson(), {
+  await fse.writeFile(join(buildPath, "host.json"), hostJson(), {
     encoding: "utf-8"
   });
+}
 
-  log(`Done.`);
-
-  log(`Copying static assets`);
-
+async function copyStaticAssets(
+  sourcePath: string,
+  buildAssetOutputPath: string,
+  buildResult: NextBuild
+) {
   log(`Copying runtime JS...`, LogLevel.Verbose);
-  await fse.copy(
-    join(resolvedPath, ".next/static"),
-    join(resolvedPath, "build", "assets")
-  );
+  await fse.copy(join(sourcePath, ".next/static"), buildAssetOutputPath);
 
   log(`Copying static pages...`, LogLevel.Verbose);
-  for (const staticPage of buildOutput.pages.filter(p => p.isStatic)) {
+  for (const staticPage of buildResult.pages.filter(p => p.isStatic)) {
     await fse.copy(
       staticPage.pageSourcePath,
-      join(resolvedPath, "build", "pages", `${staticPage.identifier}.html`)
+      join(sourcePath, "build", "pages", `${staticPage.identifier}.html`)
     );
   }
-
-  log(`Done.`);
-
-  //
-  // Azure CLI invocation
-  //
-
-  // For simplicity, we're just calling azure cli commands here. It might be better to call Azure
-  // REST API commands directly, but that's something to investigate in the future.
-
-  // Check for Azure CLI
-
-  // Upload static assets + pages to blob storage
-
-  // Upload function package
-  // TODO: Handle Linux/Windows?
 }
