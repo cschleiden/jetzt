@@ -19,11 +19,6 @@ program
   .action(folder => {
     nextJsFolder = folder;
   })
-  .description("Test")
-  .option(
-    "-s, --subscription <subscription>",
-    "Id of the Azure subscription to use"
-  )
   .option("-v, --verbose", "Output more information")
   .parse(process.argv);
 
