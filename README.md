@@ -1,4 +1,4 @@
-# jetzt
+# jetzt - WORK IN PROGRESS!
 
 `jetzt` is a small utility to build, package, and publish [Next.js](https://nextjs.org/) serverless applications to Azure Functions.
 
@@ -15,7 +15,7 @@ Assets are uploaded to Azure Blob Storage and can be served using the CDN.
 
 ### Usage: 
 
-`jetzt` is pretty much work in progress. Check again in a few days the the major features should be working. For now, proceed at your own risk:
+`jetzt` is pretty much work in progress. Check again in a few days then the major features should be working. For now, proceed at your own risk:
 
 1. Build your Next.js 9 serverless app (only version 9 is supported)
 2. Make sure it builds successfully
@@ -46,6 +46,6 @@ Soon, the publishing will work automatically, but for now:
 
 Hell, no! This is an early experiment, so expect things to break. If you do want to play with it, I'd love to hear about your experience.
 
-### what about the name? 
+### What about the name? 
 
-Work in progress, expect it to change :)
+Placeholder, expect it to change :)
