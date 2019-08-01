@@ -1,6 +1,6 @@
 # jetzt
 
-`jetzt` is a small utility to build, package, and publish Next.js serverless applications to Azure Functions.
+`jetzt` is a small utility to build, package, and publish [Next.js](https://nextjs.org/) serverless applications to Azure Functions.
 
 In general there are two ways of hosting a Next.js app on Azure Functions: 
 
@@ -45,3 +45,7 @@ Soon, the publishing will work automatically, but for now:
 ### Is this tested and production ready?
 
 Hell, no! This is an early experiment, so expect things to break. If you do want to play with it, I'd love to hear about your experience.
+
+### what about the name? 
+
+Work in progress, expect it to change :)
