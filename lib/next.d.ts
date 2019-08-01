@@ -29,7 +29,7 @@ export declare class NextPage {
     /**
      * Name of the page
      *
-     * For example, for "pages/foo/contact.{ts,js}"" this will be "contact"
+     * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact"
      */
     readonly pageName: string;
     readonly pageFileName: string;
@@ -39,9 +39,9 @@ export declare class NextPage {
      * Absolute path to the target folder
      */
     readonly targetFolder: string;
+    readonly targetPath: string;
     readonly targetPageName: string;
     readonly targetPageFileName: string;
-    readonly targetPath: string;
     toString(): string;
 }
 /**

@@ -1,16 +1,20 @@
 import chalk from "chalk";
 
 export enum LogLevel {
-  Default = 0,
-  Verbose = 1,
-  Debug = 2,
-  Error
+  Error = 0,
+  Default = 1,
+  Verbose = 2,
+  Debug = 3
 }
 
-export let CurrentLogLevel = LogLevel.Debug; // TODO: Set to verbose
+export let currentLogLevel = LogLevel.Default;
+
+export function setLogLevel(level: LogLevel) {
+  currentLogLevel = level;
+}
 
 export function log(text: string, level = LogLevel.Default): void {
-  if (CurrentLogLevel >= level) {
+  if (currentLogLevel >= level) {
     if (level === LogLevel.Verbose) {
       console.log(chalk.gray(`[jetzt]\t${text}`));
     } else {

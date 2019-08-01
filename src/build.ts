@@ -110,7 +110,7 @@ async function processSSRPages(buildResult: NextBuild) {
   for (const page of buildResult.pages.filter(
     p => !p.isStatic && !p.isDynamicallyRouted && !p.isSpecial
   )) {
-    log(`Processing ${page.pageName}`);
+    log(`Processing ${page.pageName}`, LogLevel.Verbose);
 
     // Copying to new folder
     log(`Copying to new file ${page.targetPath}`, LogLevel.Verbose);
@@ -169,13 +169,16 @@ async function copyStaticAssets(
   buildResult: NextBuild
 ) {
   log(`Copying runtime JS...`, LogLevel.Verbose);
-  await fse.copy(join(sourcePath, ".next/static"), buildAssetOutputPath);
+  await fse.copy(
+    join(sourcePath, ".next/static"),
+    join(buildAssetOutputPath, "static")
+  );
 
   log(`Copying static pages...`, LogLevel.Verbose);
   for (const staticPage of buildResult.pages.filter(p => p.isStatic)) {
     await fse.copy(
       staticPage.pageSourcePath,
-      join(sourcePath, "build", "pages", `${staticPage.identifier}.html`)
+      join(buildAssetOutputPath, "pages", staticPage.targetPageFileName)
     );
   }
 }

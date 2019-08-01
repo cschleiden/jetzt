@@ -1,4 +1,6 @@
 import { NextPage } from "./next";
+import { url } from "inspector";
+import { resolve } from "url";
 
 export function handler(pageName: string) {
   return `const page = require("./${pageName}");
@@ -54,16 +56,27 @@ export function proxiesJson(assetPath: string, pages: NextPage[]): string {
     };
   }
 
-  // Generate proxies for
+  // Generate proxies for static pages
+  for (const p of pages.filter(p => p.isStatic && !p.isSpecial)) {
+    pageProxies[`proxy_${p.identifier}`] = {
+      matchCondition: {
+        methods: ["GET"],
+        route: p.route
+      },
+      backendUri: resolve(assetPath, `pages/${p.targetPageFileName}`)
+    };
+  }
 
   return JSON.stringify({
     proxies: {
       static_assets: {
         matchCondition: {
           methods: ["GET"],
-          route: "/_next"
+          route: "_next/{*asset}"
         },
-        backendUri: assetPath
+        backendUri: `${assetPath}${
+          assetPath[assetPath.length - 1] === "/" ? "" : "/"
+        }{asset}`
       },
       ...pageProxies
     }

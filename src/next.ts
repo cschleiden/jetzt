@@ -1,5 +1,5 @@
 import glob = require("tiny-glob");
-import { basename, sep, join, dirname } from "path";
+import { basename, sep, join, dirname, extname } from "path";
 import { log, LogLevel } from "./log";
 
 /**
@@ -44,17 +44,27 @@ export class NextPage {
     // TODO: Handle dynamic routes
     return this.path
       .split(sep)
-      .map(x => basename(x, ".js"))
+      .slice(1) // Skip `pages`
+      .map(x => {
+        if (this.isStatic) {
+          // Work-around for function routing. Should find a better way here.
+          if (x === "index.html") {
+            return "";
+          }
+        }
+
+        return basename(x, extname(x));
+      })
       .join("/");
   }
 
   /**
    * Name of the page
    *
-   * For example, for "pages/foo/contact.{ts,js}"" this will be "contact"
+   * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact"
    */
   get pageName(): string {
-    return basename(this.path, ".js");
+    return basename(this.path, extname(this.path));
   }
 
   get pageFileName(): string {
@@ -83,16 +93,20 @@ export class NextPage {
     return join(this.buildOutputPath, this.identifier);
   }
 
+  get targetPath(): string {
+    return join(this.targetFolder, `__${this.pageFileName}`);
+  }
+
   get targetPageName(): string {
-    return basename(this.targetPath, ".js");
+    return basename(this.targetPath, extname(this.targetPath));
   }
 
   get targetPageFileName(): string {
-    return basename(this.targetPath);
-  }
+    if (this.isStatic) {
+      return `${this.identifier}.html`;
+    }
 
-  get targetPath(): string {
-    return join(this.targetFolder, `__${this.pageFileName}`);
+    return basename(this.targetPath);
   }
 
   toString(): string {
@@ -117,9 +131,7 @@ export class NextBuild {
     });
     for (const file of files) {
       log(`Discovered file ${file}`, LogLevel.Debug);
-      this.pages.push(
-        new NextPage(file, sourcePath, buildOutputPath)
-      );
+      this.pages.push(new NextPage(file, sourcePath, buildOutputPath));
     }
   }
 
