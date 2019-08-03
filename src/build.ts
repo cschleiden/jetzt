@@ -5,14 +5,18 @@ const nextBuild = require.main.require("next/dist/build").default;
 const archiver = require("archiver");
 import fse, { createWriteStream } from "fs-extra";
 import { join, resolve } from "path";
-import { checkConfig, JetztConfig } from "./config";
-import { log, LogLevel } from "./log";
+import { JetztConfig } from "./config";
+import { log, LogLevel } from "./lib/log";
 import { NextBuild } from "./next";
 import { parseNextJsConfig } from "./parseNextConfig";
 import { functionJson, handler, hostJson, proxiesJson } from "./templates";
+import { runStep } from "./lib/step";
+import { deploy } from "./deploy";
 
 export async function build(path: string) {
-  // Build paths
+  //
+  // Parse configuration
+  //
   const sourcePath = resolve(path);
   const buildOutputPath = join(sourcePath, "build");
   const buildPagesOutputPath = join(buildOutputPath, "pages");
@@ -26,7 +30,9 @@ export async function build(path: string) {
     getJetztConfig()
   );
 
-  // Build!
+  //
+  // Build
+  //
   const buildResult = await runStep(`Building Next.js project...`, () =>
     buildNextProject(sourcePath, buildPagesOutputPath, nextConfig)
   );
@@ -50,29 +56,9 @@ export async function build(path: string) {
   );
 
   //
-  // Azure CLI invocation
+  // Deployment
   //
-
-  // For simplicity, we're just calling azure cli commands here. It might be better to call Azure
-  // REST API commands directly, but that's something to investigate in the future.
-
-  // Check for Azure CLI
-
-  // Upload static assets + pages to blob storage
-
-  // Upload function package
-  // TODO: Handle Linux/Windows?
-}
-
-async function runStep<T>(
-  description: string,
-  step: () => Promise<T>
-): Promise<T> {
-  log(description);
-  const result = await step();
-  log(`Done.`, LogLevel.Verbose);
-
-  return result;
+  await deploy(config, buildOutputPath);
 }
 
 async function getJetztConfig() {
@@ -80,12 +66,7 @@ async function getJetztConfig() {
     throw new Error("Could not find `jetzt.config.json`");
   }
 
-  const config: JetztConfig = JSON.parse(
-    await fse.readFile("./jetzt.config.json", "utf-8")
-  );
-  checkConfig(config);
-
-  return config;
+  return JetztConfig.parse(await fse.readFile("./jetzt.config.json", "utf-8"));
 }
 
 async function buildNextProject(
@@ -149,7 +130,7 @@ async function generateProxies(
   // Generate proxies
   await fse.writeFile(
     join(buildPagesOutputPath, "proxies.json"),
-    proxiesJson(config.storage.url, buildOutput.pages),
+    proxiesJson(config.storageUrl, buildOutput.pages),
     {
       encoding: "utf-8"
     }

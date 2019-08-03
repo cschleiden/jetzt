@@ -1,10 +1,11 @@
 {
-    "storage": {
-        "account": "nextjsfunctionstorage",
-        "container": "nextjs-function-assets",
-        "url": "https://nextjsfunctionsstorage.blob.core.windows.net/nextjs-functions-assets/"
-    },
     "functionApp": {
-        
+        "subscriptionId": "9cd14f4c-dddc-40b2-b671-61fd667e0937",
+        "resourceGroup": "nextjs-rg1",
+        "location": "westeurope",
+        "name": "nextjs-rg1-function-app"
+    },
+    "storage": {
+        "account": "nextjs1functionstorage"
     }
 }

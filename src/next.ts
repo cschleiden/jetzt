@@ -1,6 +1,6 @@
 import glob = require("tiny-glob");
 import { basename, sep, join, dirname, extname } from "path";
-import { log, LogLevel } from "./log";
+import { log, LogLevel } from "./lib/log";
 
 /**
  * Represents a single Next.js page

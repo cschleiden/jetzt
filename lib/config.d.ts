@@ -1,12 +1,16 @@
-export interface StorageConfig {
-    account: string;
-    container: string;
-    url: string;
+export declare class JetztConfig {
+    private readonly config;
+    static parse(content: string): JetztConfig;
+    private constructor();
+    /**
+     * Name of the function app
+     */
+    readonly name: string;
+    readonly subscriptionId: string;
+    readonly location: string;
+    readonly resourceGroup: string;
+    readonly storageAccount: string;
+    readonly assetsContainerName: string;
+    readonly storageUrl: string;
+    private checkConfig;
 }
-export interface FunctionConfig {
-}
-export interface JetztConfig {
-    storage: StorageConfig;
-    functionApp: FunctionConfig;
-}
-export declare function checkConfig(config: JetztConfig): void;
