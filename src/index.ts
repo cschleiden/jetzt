@@ -21,6 +21,7 @@ program
     nextJsFolder = folder;
   })
   .option("-v, --verbose", "Output more information")
+  .option("--debug", "Output debug information")
   .option(
     "-d, --dryrun",
     "Don't actually deploy to Azure, just output cli commands that would run"
@@ -39,16 +40,17 @@ if (!process.argv.slice(2).length || !nextJsFolder) {
     if (program.verbose) {
       setLogLevel(LogLevel.Verbose);
     }
+    if (program.debug) {
+      setLogLevel(LogLevel.Debug);
+    }
 
     if (program.dryrun) {
       enableDryRun();
     }
 
-    try {
-      await build(nextJsFolder);
-    } catch (e) {
-      console.log(chalk.red(`Error: ${e.message}`));
-      process.exitCode = 1;
-    }
-  })();
+    await build(nextJsFolder);
+  })().catch(e => {
+    console.log(chalk.red(`Error: ${e.message}`));
+    process.exitCode = 1;
+  });
 }

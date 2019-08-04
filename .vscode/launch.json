@@ -5,10 +5,19 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}\\lib\\index.js",
+      "program": "${workspaceFolder}/lib/index.js",
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": ["${workspaceFolder}/lib/**/*.js"],
-      "args": ["C:\\experiments\\nextjs-functions"]
+      "cwd": "${workspaceFolder}/../next-azure-functions",
+      "args": ["--debug", "."]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program 2",
+      "program": "${workspaceFolder}/../next-azure-functions/node_modules/jetzt/lib/index.js",
+      "cwd": "${workspaceFolder}/../next-azure-functions",
+      "args": ["--debug", "."]
     }
   ]
 }

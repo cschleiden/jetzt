@@ -6,15 +6,19 @@ import { sleep } from "./lib/sleep";
 import { runStep } from "./lib/step";
 
 export async function deploy(config: JetztConfig, buildOutputPath: string) {
-  runStep(`Checking for Azure CLI...`, () => checkForAzCLI());
+  await runStep(`Checking for Azure CLI...`, () => checkForAzCLI());
 
-  runStep(`Creating resource group...`, () => createResourceGroup(config));
+  await runStep(`Creating resource group...`, () =>
+    createResourceGroup(config)
+  );
 
-  runStep(`Creating creating storage account...`, () => createStorage(config));
+  await runStep(`Creating creating storage account...`, () =>
+    createStorage(config)
+  );
 
-  runStep(`Creating function app...`, () => createFunctionApp(config));
+  await runStep(`Creating function app...`, () => createFunctionApp(config));
 
-  runStep(`Uploading package & assets...`, () =>
+  await runStep(`Uploading package & assets...`, () =>
     upload(config, buildOutputPath)
   );
 }
@@ -86,30 +90,14 @@ export async function createFunctionApp(config: JetztConfig) {
     fail("Could not create function app", e);
   }
 
-  // Check if package deployment is already enabled
   log(`Enabling package deploy`, LogLevel.Verbose);
   try {
-    const result = await execAsync(
-      `az functionapp config appsettings list --resource-group ${resourceGroup} --name ${name}`
-    );
-    if (result && result.stdout) {
-      const appSettings: AppSetting[] = JSON.parse(result.stdout);
-      const setting = appSettings.find(x => x.name === ConfigName);
-      if (setting && setting.value === "1") {
-        log(`Already enabled.`, LogLevel.Verbose);
-        return;
-      }
-    }
-
     await execAsync(
       `az functionapp config appsettings set --settings ${ConfigName}=1 --resource-group ${resourceGroup} --name ${name}`
     );
   } catch (e) {
     fail("Could not enable package deployment", e);
   }
-
-  // Wait before next step to give the service time to restart
-  await sleep(5000);
 }
 
 export async function upload(config: JetztConfig, buildOutputPath: string) {
@@ -121,18 +109,29 @@ export async function upload(config: JetztConfig, buildOutputPath: string) {
     assetsContainerName
   } = config;
 
-  for (let attempt = 0; attempt < 3; ++attempt) {
+  debugger;
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; ++attempt) {
     try {
+      log(
+        `Attempting to upload package (${attempt}/${maxAttempts})...`,
+        LogLevel.Verbose
+      );
       await execAsync(
         `az functionapp deployment source config-zip --subscription ${subscriptionId} -n ${name} -g ${resourceGroup} --src ${join(
           buildOutputPath,
           "package.zip"
         )}`
       );
+
+      log(`Upload successful`, LogLevel.Verbose);
+      break;
     } catch (e) {
-      if (attempt + 1 < 3) {
+      if (attempt + 1 <= maxAttempts) {
         log(
-          "Could not deploy package to Azure function app, waiting 5s and then retrying..."
+          `Could not deploy package to Azure function app, waiting 5s and then retrying... ${
+            e.message
+          }`
         );
 
         await sleep(5000);
@@ -142,6 +141,7 @@ export async function upload(config: JetztConfig, buildOutputPath: string) {
     }
   }
 
+  log(`Uploading assets to blob storage...`, LogLevel.Verbose);
   try {
     await execAsync(
       `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --source ${join(

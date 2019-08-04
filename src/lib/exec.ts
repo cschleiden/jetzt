@@ -23,7 +23,7 @@ export async function execAsync(cmd: string) {
     log(`Executing '${cmd}'...`, LogLevel.Verbose);
     const result = await execAsyncInternal(cmd);
 
-    log(`Output ${result.stdout}`, LogLevel.Verbose);
+    log(`Output ${result.stdout}`, LogLevel.Debug);
 
     return result;
   }
