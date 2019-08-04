@@ -19,26 +19,23 @@ Assets are uploaded to Azure Blob Storage and can be served using the CDN.
 
 1. Build your Next.js 9 serverless app (only version 9 is supported)
 2. Make sure it builds successfully
-3. Create a `jetzt.config.js` file, right now only the stroage url will be used, but the other options are already required. Url needs to point to a blob container on a storage account:
+3. Install Azure CLI
+3. Login to your subscription
+3. Create a `jetzt.config.js` file, with your subscription id, resource group name, location and the function app as well as your desired storage account nampe.
    ```
     {
-        "storage": {
-            "account": "foo",
-            "container": "baar",
-            "url": "https://nextjsfunctionsstorage.blob.core.windows.net/nextjs-functions-assets/"
-        },
         "functionApp": {
-            
+            "subscriptionId": "9cd14f4c-dddc-40b2-b671-61fd667e0937",
+            "resourceGroup": "nextjs-rg1",
+            "location": "westeurope",
+            "name": "nextjs-rg1-function-app"
+        },
+        "storage": {
+            "account": "nextjs1functionstorage"
         }
     }
    ```
-3. Execute: `npx jetzt .` from your project's folder. This will build the required packages and configuration in `./build`
-
-Soon, the publishing will work automatically, but for now:
-
-1. Upload `package.zip` and `packagename.txt` to an Azure storage account fileshare and follow the [instructions](https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package) to enable running from a package for best cold-start performance
-2. Upload the content from `build/assets` to the storage account specified in the configuration
-3. Navigate to your Azure Function app.
+3. Execute: `npx jetzt .` from your project's folder. This will build the required packages, create the resource group, create the function app, set it up and upload the build output.
 
 ## FAQ
 
