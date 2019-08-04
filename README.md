@@ -49,3 +49,7 @@ Hell, no! This is an early experiment, so expect things to break. If you do want
 ### What about the name? 
 
 Placeholder, expect it to change :)
+
+### Does this use some kind of Azure Functions best practice(s)? 
+
+I am no expert in using Azure Functions, I just put something together that works - most of the time. Let me know if anything can be improved.

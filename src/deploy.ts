@@ -47,7 +47,13 @@ export async function createResourceGroup(config: JetztConfig) {
 }
 
 export async function createStorage(config: JetztConfig) {
-  const { storageAccount, subscriptionId, location, resourceGroup } = config;
+  const {
+    storageAccount,
+    subscriptionId,
+    location,
+    resourceGroup,
+    assetsContainerName
+  } = config;
 
   try {
     await execAsync(
@@ -57,17 +63,14 @@ export async function createStorage(config: JetztConfig) {
     fail("Could not create storage account", e);
   }
 
-  log(`Creating storage container...`, LogLevel.Verbose);
+  log(`Setting storage container permissions`, LogLevel.Verbose);
   try {
+    await execAsync(
+      `az storage container set-permission --public-access blob --subscription ${subscriptionId} --account-name ${storageAccount} --name ${assetsContainerName}`
+    );
   } catch (e) {
-    fail("Could not create storage container", e);
+    fail("Could not set storage container access level", e);
   }
-}
-
-interface AppSetting {
-  name: string;
-  slotSettings: boolean;
-  value: string;
 }
 
 export async function createFunctionApp(config: JetztConfig) {

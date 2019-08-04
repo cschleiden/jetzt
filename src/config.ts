@@ -38,7 +38,7 @@ export class JetztConfig {
   }
 
   get storageUrl(): string {
-    return `https://${this.config.storage.account}.blog.core.windows.net/${
+    return `https://${this.config.storage.account}.blob.core.windows.net/${
       this.assetsContainerName
     }/`;
   }
