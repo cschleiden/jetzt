@@ -22,6 +22,8 @@ export async function deploy(config: JetztConfig) {
   await runStep(`Uploading package & assets...`, () =>
     upload(config, buildOutputPath)
   );
+
+  log(`Successfully deployed to https://${config.name}.azurewebsites.net/`);
 }
 
 async function checkForAzCLI() {
