@@ -30,7 +30,7 @@ export class NextPage {
    * Indicates whether the page uses dynamic routing
    */
   get isDynamicallyRouted(): boolean {
-    return /\[(.+)\]\.js/.test(basename(this.path));
+    return /\[(.+)\]/.test(this.route);
   }
 
   /**
@@ -41,7 +41,6 @@ export class NextPage {
   }
 
   get route(): string {
-    // TODO: Handle dynamic routes
     return this.path
       .split(sep)
       .slice(1) // Skip `pages`
@@ -61,10 +60,14 @@ export class NextPage {
   /**
    * Name of the page
    *
-   * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact"
+   * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact". For dynamic pages,
+   * [foo] will be replaced with _foo_
    */
   get pageName(): string {
-    return basename(this.path, extname(this.path));
+    return basename(this.path, extname(this.path)).replace(
+      /\[(.+?)\]/g,
+      "_$1_"
+    );
   }
 
   get pageFileName(): string {
@@ -81,6 +84,7 @@ export class NextPage {
     const folder = dirname(this.path)
       .split(sep)
       .slice(1)
+      .map(x => x.replace(/\[(.+?)\]/g, "_$1_"))
       .join("_");
 
     return `func_${folder}_${this.pageName}`;

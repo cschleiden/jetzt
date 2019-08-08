@@ -66,7 +66,7 @@ async function buildNextProject(
 async function processSSRPages(buildResult: NextBuild) {
   // Wrap non-static pages in custom handler
   for (const page of buildResult.pages.filter(
-    p => !p.isStatic && !p.isDynamicallyRouted && !p.isSpecial
+    p => !p.isStatic && !p.isSpecial
   )) {
     log(`Processing ${page.pageName}`, LogLevel.Verbose);
 

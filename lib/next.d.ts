@@ -29,7 +29,8 @@ export declare class NextPage {
     /**
      * Name of the page
      *
-     * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact"
+     * For example, for "pages/foo/contact.{ts,js,html}"" this will be "contact". For dynamic pages,
+     * [foo] will be replaced with _foo_
      */
     readonly pageName: string;
     readonly pageFileName: string;
