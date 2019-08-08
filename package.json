@@ -1,6 +1,6 @@
 {
   "name": "jetzt",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Package and publish Next.js 9 serverless applications to Azure Functions",
   "main": "src/index.js",
   "bin": {
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
     "@types/node": "^12.6.8",
+    "@types/prompts": "^2.0.1",
     "nodemon": "^1.19.1",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
@@ -36,6 +37,7 @@
     "figlet": "^1.2.3",
     "fs-extra": "^8.1.0",
     "path": "^0.12.7",
+    "prompts": "^2.1.0",
     "tiny-glob": "^0.2.6"
   }
 }

@@ -4,30 +4,24 @@ const nextBuild = require.main.require("next/dist/build").default;
 
 const archiver = require("archiver");
 import fse, { createWriteStream } from "fs-extra";
-import { join, resolve } from "path";
+import { join } from "path";
 import { JetztConfig } from "./config";
 import { log, LogLevel } from "./lib/log";
+import { runStep } from "./lib/step";
 import { NextBuild } from "./next";
 import { parseNextJsConfig } from "./parseNextConfig";
 import { functionJson, handler, hostJson, proxiesJson } from "./templates";
-import { runStep } from "./lib/step";
-import { deploy } from "./deploy";
 
-export async function build(path: string) {
-  //
-  // Parse configuration
-  //
-  const sourcePath = resolve(path);
-  const buildOutputPath = join(sourcePath, "build");
-  const buildPagesOutputPath = join(buildOutputPath, "pages");
-  const buildAssetsOutputPath = join(buildOutputPath, "assets");
+export async function build(config: JetztConfig) {
+  const {
+    sourcePath,
+    buildOutputPath,
+    buildPagesOutputPath,
+    buildAssetsOutputPath
+  } = config;
 
-  // Get configurations
   const nextConfig = await runStep(`Parsing Next.js config...`, () =>
-    parseNextJsConfig(path)
-  );
-  const config = await runStep(`Looking for jetzt configuration...`, () =>
-    getJetztConfig()
+    parseNextJsConfig(sourcePath)
   );
 
   //
@@ -54,19 +48,6 @@ export async function build(path: string) {
   await runStep(`Building Azure functions package`, () =>
     createPackage(buildPagesOutputPath, buildOutputPath)
   );
-
-  //
-  // Deployment
-  //
-  await deploy(config, buildOutputPath);
-}
-
-async function getJetztConfig() {
-  if (!(await fse.pathExists("./jetzt.config.json"))) {
-    throw new Error("Could not find `jetzt.config.json`");
-  }
-
-  return JetztConfig.parse(await fse.readFile("./jetzt.config.json", "utf-8"));
 }
 
 async function buildNextProject(
@@ -74,11 +55,7 @@ async function buildNextProject(
   buildPagesOutputPath: string,
   nextConfig: unknown
 ) {
-  try {
-    const buildResult = await nextBuild(sourcePath, nextConfig);
-  } catch (e) {
-    throw e;
-  }
+  await nextBuild(sourcePath, nextConfig);
 
   const buildOutput = new NextBuild(sourcePath);
   await buildOutput.init(buildPagesOutputPath);

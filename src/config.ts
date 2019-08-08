@@ -1,13 +1,57 @@
-import { log, LogLevel } from "./lib/log";
+import fse from "fs-extra";
+import { join, resolve } from "path";
+import { configPrompt } from "./config/configPrompt";
+import { log } from "./lib/log";
+
+export async function getJetztConfig(path: string) {
+  const sourcePath = resolve(path);
+  if (!(await fse.pathExists(join(sourcePath, "jetzt.config.json")))) {
+    log("Could not find configuration.");
+    debugger;
+
+    const config = await configPrompt(sourcePath);
+    if (!config) {
+      // Prompt was aborted, throw error.
+      throw new Error("Could not find `jetzt.config.json`");
+    }
+
+    return config;
+  } else {
+    return JetztConfig.parse(
+      sourcePath,
+      await fse.readFile(join(sourcePath, "jetzt.config.json"), "utf-8")
+    );
+  }
+}
 
 export class JetztConfig {
-  public static parse(content: string): JetztConfig {
+  public static parse(sourcePath: string, content: string): JetztConfig {
     const config = JSON.parse(content);
-    return new JetztConfig(config);
+    return new JetztConfig(sourcePath, config);
   }
 
-  private constructor(private readonly config: Config) {
+  public static async write(sourcePath: string, config: Config) {
+    await fse.writeFile(
+      join(sourcePath, "jetzt.config.json"),
+      JSON.stringify(config, undefined, 2)
+    );
+  }
+
+  public constructor(
+    public readonly sourcePath: string,
+    private readonly config: Config
+  ) {
     this.checkConfig();
+  }
+
+  get buildOutputPath() {
+    return join(this.sourcePath, "build");
+  }
+  get buildPagesOutputPath() {
+    return join(this.buildOutputPath, "pages");
+  }
+  get buildAssetsOutputPath() {
+    return join(this.buildOutputPath, "assets");
   }
 
   /**
@@ -76,11 +120,11 @@ export class JetztConfig {
   }
 }
 
-interface StorageConfig {
+export interface StorageConfig {
   account: string;
 }
 
-interface FunctionConfig {
+export interface FunctionConfig {
   /**
    * Name of the function app
    */
@@ -102,7 +146,7 @@ interface FunctionConfig {
   location: string;
 }
 
-interface Config {
+export interface Config {
   storage: StorageConfig;
   functionApp: FunctionConfig;
 }

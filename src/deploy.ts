@@ -5,7 +5,7 @@ import { log, LogLevel } from "./lib/log";
 import { sleep } from "./lib/sleep";
 import { runStep } from "./lib/step";
 
-export async function deploy(config: JetztConfig, buildOutputPath: string) {
+export async function deploy(config: JetztConfig) {
   await runStep(`Checking for Azure CLI...`, () => checkForAzCLI());
 
   await runStep(`Creating resource group...`, () =>
@@ -18,23 +18,23 @@ export async function deploy(config: JetztConfig, buildOutputPath: string) {
 
   await runStep(`Creating function app...`, () => createFunctionApp(config));
 
+  const { buildOutputPath } = config;
   await runStep(`Uploading package & assets...`, () =>
     upload(config, buildOutputPath)
   );
 }
 
-export async function checkForAzCLI() {
+async function checkForAzCLI() {
   try {
     await execAsync(`az --version`);
-  } catch (e) {
+  } catch {
     fail(
-      "Could not find Azure CLI. Please install from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest",
-      e
+      "Could not find Azure CLI. Please install from https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest"
     );
   }
 }
 
-export async function createResourceGroup(config: JetztConfig) {
+async function createResourceGroup(config: JetztConfig) {
   const { subscriptionId, location, resourceGroup } = config;
 
   try {
@@ -46,7 +46,7 @@ export async function createResourceGroup(config: JetztConfig) {
   }
 }
 
-export async function createStorage(config: JetztConfig) {
+async function createStorage(config: JetztConfig) {
   const {
     storageAccount,
     subscriptionId,
@@ -73,7 +73,7 @@ export async function createStorage(config: JetztConfig) {
   }
 }
 
-export async function createFunctionApp(config: JetztConfig) {
+async function createFunctionApp(config: JetztConfig) {
   const {
     subscriptionId,
     storageAccount,
@@ -103,7 +103,7 @@ export async function createFunctionApp(config: JetztConfig) {
   }
 }
 
-export async function upload(config: JetztConfig, buildOutputPath: string) {
+async function upload(config: JetztConfig, buildOutputPath: string) {
   const {
     subscriptionId,
     resourceGroup,

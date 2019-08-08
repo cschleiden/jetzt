@@ -29,7 +29,11 @@ export async function execAsync(cmd: string) {
   }
 }
 
-export function fail(msg: string, error: ExecError) {
-  log(`${msg} ${error.message} ${error.stderr}`, LogLevel.Error);
-  throw new Error("Unrecoverable error during deployment");
+export function fail(msg: string, error?: ExecError) {
+  const errorMessage = error ? `${error.message}` : "";
+  log(`${msg} ${errorMessage}`, LogLevel.Error);
+  if (error && error.stderr) {
+    log(error.stderr, LogLevel.Verbose);
+  }
+  throw new Error();
 }

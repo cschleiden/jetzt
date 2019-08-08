@@ -1,1 +1,2 @@
-export declare function build(path: string): Promise<void>;
+import { JetztConfig } from "./config";
+export declare function build(config: JetztConfig): Promise<void>;

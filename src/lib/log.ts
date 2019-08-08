@@ -15,10 +15,19 @@ export function setLogLevel(level: LogLevel) {
 
 export function log(text: string, level = LogLevel.Default): void {
   if (currentLogLevel >= level) {
-    if (level === LogLevel.Verbose) {
-      console.log(chalk.gray(`[jetzt]\t${text}`));
-    } else {
-      console.log(`[jetzt]\t${text}`);
+    const message = `[jetzt]\t${text}`;
+    switch (level) {
+      case LogLevel.Verbose: {
+        console.log(chalk.gray(message));
+        break;
+      }
+      case LogLevel.Error: {
+        console.log(chalk.red(message));
+        break;
+      }
+      default: {
+        console.log(message);
+      }
     }
   }
 }
