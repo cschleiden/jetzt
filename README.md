@@ -83,7 +83,7 @@ Placeholder, expect it to change :)
 
 ### Does this use some kind of Azure Functions best practice(s)? 
 
-I am no expert in using Azure Functions, I just put something together that works - most of the time. Let me know if there is anything can be improved.
+I am no expert in using Azure Functions, I just put something together that works - most of the time. Let me know if there is anything that could be improved.
 
 ### Does this support all features of Next.js?
 
