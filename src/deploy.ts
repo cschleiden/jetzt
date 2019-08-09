@@ -60,6 +60,15 @@ async function createStorage(config: JetztConfig) {
     fail("Could not create storage account", e);
   }
 
+  log(`Creating storage container`, LogLevel.Verbose);
+  try {
+    await execAsync(
+      `az storage container create --subscription ${subscriptionId} --name ${assetsContainerName} --account-name ${storageAccount}`
+    );
+  } catch (e) {
+    fail("Could not create storage container", e);
+  }
+
   log(`Setting storage container permissions`, LogLevel.Verbose);
   try {
     await execAsync(
