@@ -12,9 +12,7 @@ export async function deploy(config: JetztConfig) {
     createResourceGroup(config)
   );
 
-  await runStep(`Creating creating storage account...`, () =>
-    createStorage(config)
-  );
+  await runStep(`Creating storage account...`, () => createStorage(config));
 
   await runStep(`Creating function app...`, () => createFunctionApp(config));
 
