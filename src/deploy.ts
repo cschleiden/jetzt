@@ -18,10 +18,7 @@ export async function deploy(config: JetztConfig) {
 
   await runStep(`Creating function app...`, () => createFunctionApp(config));
 
-  const { buildOutputPath } = config;
-  await runStep(`Uploading package & assets...`, () =>
-    upload(config, buildOutputPath)
-  );
+  await runStep(`Uploading package & assets...`, () => upload(config));
 
   log(`Successfully deployed to https://${config.name}.azurewebsites.net/`);
 }
@@ -105,16 +102,17 @@ async function createFunctionApp(config: JetztConfig) {
   }
 }
 
-async function upload(config: JetztConfig, buildOutputPath: string) {
+async function upload(config: JetztConfig) {
   const {
     subscriptionId,
     resourceGroup,
     name,
     storageAccount,
-    assetsContainerName
+    assetsContainerName,
+    buildOutputPath,
+    sourcePath
   } = config;
 
-  debugger;
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; ++attempt) {
     try {
@@ -149,9 +147,21 @@ async function upload(config: JetztConfig, buildOutputPath: string) {
   log(`Uploading assets to blob storage...`, LogLevel.Verbose);
   try {
     await execAsync(
-      `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --source ${join(
+      `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --destination-path _next --source ${join(
         buildOutputPath,
         "assets"
+      )}`
+    );
+  } catch (e) {
+    fail("Could not upload assets to Azure blob storage", e);
+  }
+
+  log(`Uploading static assets to blob storage...`, LogLevel.Verbose);
+  try {
+    await execAsync(
+      `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --destination-path static --source ${join(
+        sourcePath,
+        "static"
       )}`
     );
   } catch (e) {

@@ -1,6 +1,5 @@
+import { resolve } from "url";
 import { NextPage } from "./next";
-import { url } from "inspector";
-import { resolve, parse } from "url";
 
 export function handler(pageName: string) {
   return `const page = require("./${pageName}");
@@ -54,7 +53,7 @@ function parseParameters(route: string) {
   return parameters;
 }
 
-export function proxiesJson(assetPath: string, pages: NextPage[]): string {
+export function proxiesJson(assetsUrl: string, pages: NextPage[]): string {
   const pageProxies: any = {};
 
   // Generate proxies for SSR pages
@@ -88,20 +87,25 @@ export function proxiesJson(assetPath: string, pages: NextPage[]): string {
         methods: ["GET"],
         route: p.route
       },
-      backendUri: resolve(assetPath, `pages/${p.targetPageFileName}`)
+      backendUri: resolve(assetsUrl, `_next/pages/${p.targetPageFileName}`)
     };
   }
 
   return JSON.stringify({
     proxies: {
-      static_assets: {
+      page_assets: {
         matchCondition: {
           methods: ["GET"],
           route: "_next/{*asset}"
         },
-        backendUri: `${assetPath}${
-          assetPath[assetPath.length - 1] === "/" ? "" : "/"
-        }{asset}`
+        backendUri: `${assetsUrl}_next/{asset}`
+      },
+      static_assets: {
+        matchCondition: {
+          methods: ["GET"],
+          route: "static/{*asset}"
+        },
+        backendUri: `${assetsUrl}static/{asset}`
       },
       ...pageProxies
     }
