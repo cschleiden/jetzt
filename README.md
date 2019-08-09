@@ -88,3 +88,7 @@ I am no expert in using Azure Functions, I just put something together that work
 ### Does this support all features of Next.js?
 
 It should eventually, for now it might be good to take a look at the open issues to see what is still being worked on.
+
+### How do I use it without doing an interactive login via `az login`?
+
+For now, the main use case is the interactive usage. For integrating into CI/CD workflows etc. you might want to use the build only mode and then publish yourself. Execute with the `--dryrun` flag to see all the Azure CLI command that would be executed.
