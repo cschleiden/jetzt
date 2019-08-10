@@ -45,14 +45,12 @@ export class NextPage {
       .split(sep)
       .slice(1) // Skip `pages`
       .map(x => {
-        if (this.isStatic) {
-          // Work-around for function routing. Should find a better way here.
-          if (x === "index.html") {
-            return "";
-          }
+        const segment = basename(x, extname(x));
+        if (segment === "index") {
+          return "";
         }
 
-        return basename(x, extname(x));
+        return segment;
       })
       .join("/");
   }
