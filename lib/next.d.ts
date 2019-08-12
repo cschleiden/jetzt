@@ -26,6 +26,7 @@ export declare class NextPage {
      */
     readonly isSpecial: boolean;
     readonly route: string;
+    readonly processedRoute: string;
     /**
      * Name of the page
      *

@@ -55,6 +55,16 @@ export class NextPage {
       .join("/");
   }
 
+  get processedRoute(): string {
+    const r = this.route.replace(/\[(.+?)\]/g, "{$1}");
+    if (!r) {
+      // Workaround for /index route
+      return "/";
+    }
+
+    return r;
+  }
+
   /**
    * Name of the page
    *
@@ -140,4 +150,18 @@ export class NextBuild {
   public get pages() {
     return this._pages;
   }
+}
+
+function parseParameters(route: string) {
+  const parameters: string[] = [];
+  const r = /\[(.+?)\]/g;
+  let result: RegExpExecArray | null;
+  do {
+    result = r.exec(route);
+    if (result) {
+      parameters.push(result[1]);
+    }
+  } while (result);
+
+  return parameters;
 }

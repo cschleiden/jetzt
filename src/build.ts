@@ -91,7 +91,7 @@ async function processSSRPages(buildResult: NextBuild) {
     log(`Writing function description...`, LogLevel.Verbose);
     await fse.writeFile(
       join(page.targetFolder, "function.json"),
-      functionJson(),
+      functionJson(page),
       {
         encoding: "utf-8"
       }

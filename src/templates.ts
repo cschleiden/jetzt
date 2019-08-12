@@ -9,7 +9,7 @@ module.exports = async function (context) {
 };`;
 }
 
-export function functionJson() {
+export function functionJson(page: NextPage) {
   return JSON.stringify({
     bindings: [
       {
@@ -17,7 +17,8 @@ export function functionJson() {
         type: "httpTrigger",
         direction: "in",
         name: "req",
-        methods: ["get"]
+        methods: ["get"],
+        route: page.processedRoute
       },
       {
         type: "http",
@@ -39,46 +40,8 @@ export function hostJson(): string {
   });
 }
 
-function parseParameters(route: string) {
-  const parameters: string[] = [];
-  const r = /\[(.+?)\]/g;
-  let result: RegExpExecArray | null;
-  do {
-    result = r.exec(route);
-    if (result) {
-      parameters.push(result[1]);
-    }
-  } while (result);
-
-  return parameters;
-}
-
 export function proxiesJson(assetsUrl: string, pages: NextPage[]): string {
   const pageProxies: any = {};
-
-  // Generate proxies for SSR pages
-  for (const p of pages.filter(p => !p.isStatic && !p.isSpecial)) {
-    if (p.isDynamicallyRouted) {
-      const parameters = parseParameters(p.route);
-      pageProxies[`proxy_${p.identifier}`] = {
-        matchCondition: {
-          methods: ["GET"],
-          route: p.route.replace(/\[(.+?)\]/g, "{$1}")
-        },
-        backendUri: `https://localhost/${p.identifier}?${parameters
-          .map(p => `${p}={${p}}`)
-          .join("&")}`
-      };
-    } else {
-      pageProxies[`proxy_${p.identifier}`] = {
-        matchCondition: {
-          methods: ["GET"],
-          route: p.route
-        },
-        backendUri: `https://localhost/${p.identifier}`
-      };
-    }
-  }
 
   // Generate proxies for static pages
   for (const p of pages.filter(p => p.isStatic && !p.isSpecial)) {
@@ -91,6 +54,7 @@ export function proxiesJson(assetsUrl: string, pages: NextPage[]): string {
     };
   }
 
+  // Add proxies for static assets
   return JSON.stringify({
     proxies: {
       page_assets: {
