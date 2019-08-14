@@ -52,7 +52,7 @@ and then upload to Azure yourself.
 ### Configuration
 
 `jetzt` expects a `jetzt.config.json` file in the directory of the Next.js app. The structure 
-   ```json
+   ```jsonc
     {
         "functionApp": {
             // Id of the Azure subscription
