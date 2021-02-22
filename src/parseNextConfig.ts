@@ -1,8 +1,8 @@
 // Based on
 // https://github.com/danielcondemarin/serverless-nextjs-plugin/blob/master/packages/serverless-nextjs-plugin/lib/parseNextConfiguration.js
 // by Daniel Condemarin
-const nextLoadConfig = require("next-server/dist/server/config").default;
-const { PHASE_PRODUCTION_BUILD } = require("next-server/dist/lib/constants");
+const nextLoadConfig = require("next/dist/next-server/server/config").default;
+const { PHASE_PRODUCTION_BUILD } = require("next/constants");
 
 export function parseNextJsConfig(nextConfigDir: string) {
   const nextConfiguration = nextLoadConfig(
