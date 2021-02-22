@@ -3,21 +3,23 @@
 const nextBuild = require.main.require("next/dist/build").default;
 
 const archiver = require("archiver");
+
+import { LogLevel, log } from "./lib/log";
 import fse, { createWriteStream } from "fs-extra";
-import { join } from "path";
-import { JetztConfig } from "./config";
-import { log, LogLevel } from "./lib/log";
-import { runStep } from "./lib/step";
-import { NextBuild } from "./next";
-import { parseNextJsConfig } from "./parseNextConfig";
 import { functionJson, handler, hostJson, proxiesJson } from "./templates";
+
+import { JetztConfig } from "./config";
+import { NextBuild } from "./next";
+import { join } from "path";
+import { parseNextJsConfig } from "./parseNextConfig";
+import { runStep } from "./lib/step";
 
 export async function build(config: JetztConfig) {
   const {
     sourcePath,
     buildOutputPath,
     buildPagesOutputPath,
-    buildAssetsOutputPath
+    buildAssetsOutputPath,
   } = config;
 
   const nextConfig = await runStep(`Parsing Next.js config...`, () =>
@@ -66,7 +68,7 @@ async function buildNextProject(
 async function processSSRPages(buildResult: NextBuild) {
   // Wrap non-static pages in custom handler
   for (const page of buildResult.pages.filter(
-    p => !p.isStatic && !p.isSpecial
+    (p) => !p.isStatic && !p.isSpecial
   )) {
     log(`Processing ${page.pageName}`, LogLevel.Verbose);
 
@@ -83,7 +85,7 @@ async function processSSRPages(buildResult: NextBuild) {
       join(page.targetFolder, "index.js"),
       handler(page.targetPageFileName),
       {
-        encoding: "utf-8"
+        encoding: "utf-8",
       }
     );
 
@@ -93,7 +95,7 @@ async function processSSRPages(buildResult: NextBuild) {
       join(page.targetFolder, "function.json"),
       functionJson(page),
       {
-        encoding: "utf-8"
+        encoding: "utf-8",
       }
     );
   }
@@ -109,7 +111,7 @@ async function generateProxies(
     join(buildPagesOutputPath, "proxies.json"),
     proxiesJson(config.storageUrl, buildOutput.pages),
     {
-      encoding: "utf-8"
+      encoding: "utf-8",
     }
   );
 }
@@ -117,7 +119,7 @@ async function generateProxies(
 async function generateHostConfig(buildPath: string): Promise<void> {
   // Generate host config
   await fse.writeFile(join(buildPath, "host.json"), hostJson(), {
-    encoding: "utf-8"
+    encoding: "utf-8",
   });
 }
 
@@ -133,7 +135,7 @@ async function copyStaticAssets(
   );
 
   log(`Copying static pages...`, LogLevel.Verbose);
-  for (const staticPage of buildResult.pages.filter(p => p.isStatic)) {
+  for (const staticPage of buildResult.pages.filter((p) => p.isStatic)) {
     await fse.copy(
       staticPage.pageSourcePath,
       join(buildAssetOutputPath, "pages", staticPage.targetPageFileName)
@@ -150,13 +152,13 @@ async function createPackage(sourcePath: string, outputPath: string) {
     output.on("error", reject);
 
     const archive = archiver("zip", {
-      zlib: { level: 0 }
+      zlib: { level: 0 },
     });
 
     archive
       .glob(`**/*`, {
         ignore: packageFilename,
-        cwd: sourcePath
+        cwd: sourcePath,
       })
       .on("error", reject)
       .pipe(output);
@@ -164,7 +166,7 @@ async function createPackage(sourcePath: string, outputPath: string) {
   });
 
   await fse.writeFile(join(outputPath, "packagename.txt"), packageFilename, {
-    encoding: "utf-8"
+    encoding: "utf-8",
   });
 
   // Clean up directories
