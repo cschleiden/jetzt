@@ -1,9 +1,11 @@
-import { join } from "path";
-import { JetztConfig } from "./config";
+import { LogLevel, log } from "./lib/log";
 import { execAsync, fail } from "./lib/exec";
-import { log, LogLevel } from "./lib/log";
-import { sleep } from "./lib/sleep";
+
+import { JetztConfig } from "./config";
+import { existsSync } from "fs";
+import { join } from "path";
 import { runStep } from "./lib/step";
+import { sleep } from "./lib/sleep";
 
 export async function deploy(config: JetztConfig) {
   await runStep(`Checking for Azure CLI...`, () => checkForAzCLI());
@@ -49,7 +51,7 @@ async function createStorage(config: JetztConfig) {
     subscriptionId,
     location,
     resourceGroup,
-    assetsContainerName
+    assetsContainerName,
   } = config;
 
   try {
@@ -85,7 +87,7 @@ async function createFunctionApp(config: JetztConfig) {
     storageAccount,
     location,
     resourceGroup,
-    name
+    name,
   } = config;
 
   const ConfigName = "WEBSITE_RUN_FROM_PACKAGE";
@@ -117,7 +119,7 @@ async function upload(config: JetztConfig) {
     storageAccount,
     assetsContainerName,
     buildOutputPath,
-    sourcePath
+    sourcePath,
   } = config;
 
   const maxAttempts = 3;
@@ -139,9 +141,7 @@ async function upload(config: JetztConfig) {
     } catch (e) {
       if (attempt + 1 <= maxAttempts) {
         log(
-          `Could not deploy package to Azure function app, waiting 5s and then retrying... ${
-            e.message
-          }`
+          `Could not deploy package to Azure function app, waiting 5s and then retrying... ${e.message}`
         );
 
         await sleep(5000);
@@ -163,15 +163,15 @@ async function upload(config: JetztConfig) {
     fail("Could not upload assets to Azure blob storage", e);
   }
 
-  log(`Uploading static assets to blob storage...`, LogLevel.Verbose);
-  try {
-    await execAsync(
-      `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --destination-path static --source ${join(
-        sourcePath,
-        "static"
-      )}`
-    );
-  } catch (e) {
-    fail("Could not upload assets to Azure blob storage", e);
+  const staticPath = join(sourcePath, "static");
+  if (existsSync(staticPath)) {
+    log(`Uploading static assets to blob storage...`, LogLevel.Verbose);
+    try {
+      await execAsync(
+        `az storage blob upload-batch --subscription ${subscriptionId} --account-name ${storageAccount} --destination ${assetsContainerName} --destination-path static --source ${staticPath}`
+      );
+    } catch (e) {
+      fail("Could not upload assets to Azure blob storage", e);
+    }
   }
 }
