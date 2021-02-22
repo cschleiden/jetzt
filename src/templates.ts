@@ -5,6 +5,12 @@ export function handler(pageName: string) {
   return `const page = require("./${pageName}");
 
 module.exports = async function (context) {
+    const req = context.bindings.req;
+    if (!req.body) {
+      // Always set a body. Azure Functions does some pre-parsing of the body and the provided
+      // request doesn't work with Next's usage of stream-utils/raw-body.
+      req.body = {};
+    }
     await page.default(context.bindings.req, context.res);
 };`;
 }

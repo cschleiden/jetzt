@@ -1,7 +1,7 @@
 {
   "name": "jetzt",
-  "version": "0.0.7",
-  "description": "Package and publish Next.js 9 serverless applications to Azure Functions",
+  "version": "0.1.0",
+  "description": "Package and publish Next.js 10 serverless applications to Azure Functions",
   "main": "src/index.js",
   "bin": {
     "jetzt": "./lib/index.js"
@@ -17,7 +17,7 @@
   "author": "Christopher Schleiden <cschleiden@live.de>",
   "license": "MIT",
   "peerDependencies": {
-    "next": "^9.0.0"
+    "next": "^10.0.7"
   },
   "engines": {
     "node": ">=8.5.0"
