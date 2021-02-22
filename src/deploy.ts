@@ -163,7 +163,10 @@ async function upload(config: JetztConfig) {
     fail("Could not upload assets to Azure blob storage", e);
   }
 
-  const staticPath = join(sourcePath, "static");
+  let staticPath = join(sourcePath, "static");
+  if (!existsSync(staticPath)) {
+    staticPath = join(sourcePath, "public");
+  }
   if (existsSync(staticPath)) {
     log(`Uploading static assets to blob storage...`, LogLevel.Verbose);
     try {
