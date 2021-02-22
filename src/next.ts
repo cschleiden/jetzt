@@ -1,6 +1,7 @@
 import glob = require("tiny-glob");
-import { basename, sep, join, dirname, extname } from "path";
-import { log, LogLevel } from "./lib/log";
+
+import { LogLevel, log } from "./lib/log";
+import { basename, dirname, extname, join, sep } from "path";
 
 /**
  * Represents a single Next.js page
@@ -44,7 +45,7 @@ export class NextPage {
     return this.path
       .split(sep)
       .slice(1) // Skip `pages`
-      .map(x => {
+      .map((x) => {
         const segment = basename(x, extname(x));
         if (segment === "index") {
           return "";
@@ -92,7 +93,7 @@ export class NextPage {
     const folder = dirname(this.path)
       .split(sep)
       .slice(1)
-      .map(x => x.replace(/\[(.+?)\]/g, "_$1_"))
+      .map((x) => x.replace(/\[(.+?)\]/g, "_$1_"))
       .join("_");
 
     return `func_${folder}_${this.pageName}`;
@@ -139,7 +140,7 @@ export class NextBuild {
     const sourcePath = join(this.sourcePath, ".next", "serverless");
 
     const files = await glob("pages/**/*.{js,html}", {
-      cwd: sourcePath
+      cwd: sourcePath,
     });
     for (const file of files) {
       log(`Discovered file ${file}`, LogLevel.Debug);
@@ -150,18 +151,4 @@ export class NextBuild {
   public get pages() {
     return this._pages;
   }
-}
-
-function parseParameters(route: string) {
-  const parameters: string[] = [];
-  const r = /\[(.+?)\]/g;
-  let result: RegExpExecArray | null;
-  do {
-    result = r.exec(route);
-    if (result) {
-      parameters.push(result[1]);
-    }
-  } while (result);
-
-  return parameters;
 }
